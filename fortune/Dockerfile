@@ -13,10 +13,10 @@ WORKDIR /APP_PORT
 #Copy my src
 
 # Copy from local computer
-COPY ./main.js
-COPY ./package*.jason .
-COPY ./public public
-COPY ./views views
+COPY main.js
+COPY package*.jason .
+COPY public public
+COPY views views
 
 # install node modules
 RUN npm ci
