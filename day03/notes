@@ -1,0 +1,69 @@
+Day 3
+
+helm repo list
+helm search repo mysql
+
+helm install my-ingress ingress-nginx/nginx stable/nginx-ingress --set controller.publishService.enabled=true -n nginx-ns
+
+k describe po/mysql-po
+k exec -ti po/mysql-po — /bin/bash
+
+k get sc
+k get pvc,pv
+
+k describe pvc/mysql-pvc
+
+k delete pvc/mysql-pvc
+k delete ns/namespace_name
+
+k get pvc,pv
+NAME                              STATUS    VOLUME   CAPACITY   ACCESS MODES   STORAGECLASS              VOLUMEATTRIBUTESCLASS   AGE
+persistentvolumeclaim/mysql-pvc   Pending                                      do-block-storage-retain   <unset>                 3m39s
+ferdinan@SPMSGF046 ~/Documents/GitHub/nus-iss-cfdsa/day02 $ k delete persistentvolumeclaim/mysql-pvc
+persistentvolumeclaim "mysql-pvc" deleted
+
+$ k get ingressclass
+
+k get svc -A
+
+k describe ing/dov-ing -ndovns
+
+Ingress Controller = always have default ports 80 and 443
+
+## workshop03
+docker run -d \
+--name=code-server \
+-e TZ=Asia/Singapore \
+-e PASSWORD=pass123 \
+-e SUDO_PASSWORD=pass123 \
+-e DEFAULT_WORKSPACE=/config/workspace \
+-p 8443:8443 \
+-e PROXY_DOMAIN=code-app-116-203-255-68.nip.io \
+-v workspace-vol:/config/workspace \
+linuxserver/code-server:amd64-v1.0
+
+k get sc = storage class
+k get all,ing
+
+k explain...... checking documentaion from cmdline
+
+
+k port-forward 
+
+k get ep -ncodeserver
+
+k get ingressclass
+k explain
+
+to get all on same service:
+k get ing -A
+k get po -ndovns
+
+
+
+k apply -f metrics-server.yaml
+k top no
+k top po -A --sort-by=memory
+
+
+116.203.255.68

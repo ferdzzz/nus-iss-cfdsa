@@ -1,0 +1,172 @@
+day1 notes
+vscode:
+- fix profile sync across all devices
+- fix yaml / yml indentation
+- fix past auto indentation
+
+Clarksons farm - prime
+Sbom - 
+
+Gvizer / catacontainer - sandboxing
+
+slack: cfdsa-sept-02-2024
+$ docker build -t ferdzzz/cfdsa-fortune:v1.0 .
+$ docker login
+
+Docker exec XXXX ps -ef = means running the ps -ef inside the container and then exit - xxxx Is the 1st 4 digit of the container id
+
+$ docker ps -aq = lists only running containers
+$ docker rm -f $(docker ps -aq) = deletes all running containers
+
+
+Dockerfile
+HEALTHCHECK —interval=30s —timeout-5s —start-period=5s —retries=3 \
+       CMD curl -s localhost:${PORT}/healthz || exit 1
+
+
+####
+Creating the containers from existing app
+
+Create the “Dockerfile”
+
+Build the Docker Image:
+$ docker build -t ferdzzz/dov-bear-python:v1.0 .
+
+Push the Image to Docker Hub:
+$ docker push ferdzzz/dov-bear-python:v1.0
+
+Run the Container with Custom Environment Variables:
+$ docker run -d -p 5000:5000 -e PORT=5000 -e INSTANCE_NAME="Dov-Bear-PY" -e INSTANCE_HASH="123654" ferdzzz/dov-bear-python:v1.0
+
+Use “dive” for debugging
+
+####
+Docker network
+
+$ docker ps 
+$ docker inspect 4843 | less
+$ docker network ls
+
+Debugging contaner:
+nicolaka/netshoot
+
+Create a network where web can access database but no one can directly access the db
+$ docker volume create data-vol
+$ docker network create ferdznet
+$ docker run -d \
+	—mount type=volume,src=data-volume,dst=/var/lib/mysql \
+	—network ferdznet \
+	—name mydb
+	   mysql:8
+
+$ docker run -d -p 8080:3000 \
+	—network ferdznet \
+	-e DB_HOST=mydb \
+	mywebapp:v1.0
+
+
+
+$ docker compose logs => shows the logs
+$ docker compose ps -a => only shows what’s inside the compose file
+
+$ docker compose down
+- This removes everything exempt the volume, volume must need to be remove manually.
+
+####   Task2
+Here's how you can accomplish Task 2:
+
+Steps:
+Create the directory:
+
+bash
+Copy code
+mkdir -p workshop01/task2
+cd workshop01/task2
+Create the Docker network:
+
+bash
+Copy code
+docker network create mynet
+Create a Docker volume for the database:
+
+bash
+Copy code
+docker volume create mydb_data
+Run the database container:
+
+This container will use the volume for persistence.
+bash
+Copy code
+docker run -d \
+  --name mydb \
+  --network mynet \
+  -v mydb_data:/var/lib/mysql \
+  stackupiss/northwind-db:v1
+Run the Node.js application container:
+
+Set the DB_HOST, DB_USER, and DB_PASSWORD environment variables.
+bash
+Copy code
+docker run -d \
+  --name myapp \
+  --network mynet \
+  -p 8080:8080 \
+  -e DB_HOST=mydb \
+  -e DB_USER=root \
+  -e DB_PASSWORD=changeit \
+  stackupiss/northwind-app:v1
+Create a steps.txt file:
+
+bash
+Copy code
+touch steps.txt
+Add the commands to the file:
+
+bash
+Copy code
+echo "docker network create mynet" >> steps.txt
+echo "docker volume create mydb_data" >> steps.txt
+echo "docker run -d --name mydb --network mynet -v mydb_data:/var/lib/mysql stackupiss/northwind-db:v1" >> steps.txt
+echo "docker run -d --name myapp --network mynet -p 8080:8080 -e DB_HOST=mydb -e DB_USER=root -e DB_PASSWORD=changeit stackupiss/northwind-app:v1" >> steps.txt
+Access the application:
+
+Use the Docker host IP address with port 8080 to access the app.
+Optional: Using Docker Compose
+Create a docker-compose.yml file:
+
+yaml
+Copy code
+version: '3'
+services:
+  mydb:
+    image: stackupiss/northwind-db:v1
+    volumes:
+      - mydb_data:/var/lib/mysql
+    networks:
+      - mynet
+
+  myapp:
+    image: stackupiss/northwind-app:v1
+    environment:
+      DB_HOST: mydb
+      DB_USER: root
+      DB_PASSWORD: changeit
+    ports:
+      - "8080:8080"
+    networks:
+      - mynet
+
+networks:
+  mynet:
+    driver: bridge
+
+volumes:
+  mydb_data:
+Deploy using Docker Compose:
+
+bash
+Copy code
+docker-compose up -d
+Let me know if you'd like more details or adjustments!
+
+

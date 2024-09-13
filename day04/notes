@@ -1,0 +1,31 @@
+k get no = get nodes
+k get po -owide -A = gets pods in a wide list
+
+k cordon node_name
+k uncordon node_name
+
+# to remove nodes
+k drain node_name --ignore-daemonset
+
+
+# Kustomize
+cd to your kustomization.yaml location
+k apply -k . -oyaml --dry-run=client > prod.yaml 
+= test on user/client machine
+= -oyaml is generate the yaml files
+
+or
+k apply -k . -oyaml --dry-run=server > prod.yaml = test on server machine
+
+k create deploy mynginx --image=nginx --replicas=3 -oyaml -ndovns --dry-run=client
+k create cm myconfig --from-literal=abc1=123 -oyaml -ndovns --dry-run=client
+k create secret generic myconf --from-literal=abc=123 -oyaml -ndovns --dry-run=client
+
+
+via vim:
+.!k create deploy mynginx --image=nginx --replicas=3 -oyaml -ndovns --dry-run=client
+= means create on the vim command
+
+watch k get po,sts,svc -ndovns - owide
+
+k logs -f sts/minio-sts -nminio-ns

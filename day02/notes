@@ -1,0 +1,136 @@
+Day 2
+Kubernetes - Part 1
+
+Don’t do: - copying secrets to containers - even after delete they are still in cached
+COPY secret .
+RUN mysql -u root -p passs……
+RUN rm secret
+
+FROM node:22 - can do on dev environment
+            node
+	    node:latest
+
+docker build -t …. myimage:v1
+docker push …. Myimage:v1
+change Dockerfile
+docker build -t …. Myimage:v1
+              push …. Myimage:v1
+
+Do this for production:
+ferdzzz/myimage@sha256:abcdXXXXXX
+
+
+docker image inspect ferdzzz/myapp:v1 | jq ‘.[].RepoDigests’
+docker image inspect ferdzzz/myapp:v1 | jq ‘.[].RepoDigests[0]’
+docker image inspect ferdzzz/myapp:v1 | jq -r ‘.[].RepoDigests[0]’
+
+git rev-parse —short HEAD = gets the short id
+docker image ls
+docker tag ferdzzz/myapp:v1 ferdzzz/myapp:c6fb59 = tagging
+
+
+Kubernetes
+- does not support swap
+- master is using etc service - API Server this is the heart of k8
+
+config is the copy of the downloaded k8s config file
+$ kubectl cluster-info --kubeconfig config
+
+create .kube on your home directory and copy the config file
+then you can do the cluster-info on any location without typing the —kubeconfig
+$ kubectl cluster-info
+or
+$ k cluster-info = after creating alias as k for kubectl
+
+k get namespace
+k get pods
+k get deployments
+
+
+k get pods -n kube-system = check all pods on that namespace
+k get service -A
+
+k get pod cilium-72sc8 -n kube-system
+or
+k get pod/cilium-72sc8 -n kube-system
+
+k describe pod cilium-72sc8 -n kube-system
+k get svc -A
+k describe svc/hubble-peer -n kube-system
+
+brew install kubecolor
+
+$ kubectl create ns ferdzzzns
+namespace/ferdzzzns created
+
+$ k describe ns/ferdzzzns
+$ k get ns
+
+k create ns myns
+k  get ns/myns -o yaml > myns.yaml
+
+k delete ns/myns
+
+k get po -nmyns -owide
+
+k port-forward po/mypod -nmyns 8000:3000
+ = external port:container port
+
+k get all -nmyns -owide
+
+# delete immediately
+k delete pod/dov-deploy-XXXX -nmyns —force —grace-period=0
+
+k get ep -nmyns
+k get 
+
+k run netshoot \
+	-ti —rm \
+	—image=nicolaka/netshoot \
+	— /bin/bash
+or
+$ k run abc -ti --rm --image=nicolaka/netshoot -- /bin/bash
+format: service-name.namespace.svc.cluster.local
+nslookup dov-svc.mnyns.svc.cluster.local
+curl dov-svc.myns.svc.cluster.local:8000
+
+
+workshop2
+
+$ k get all,cm,secret -nbggns
+$ k describe cm/bgg-cm -nbggns
+
+k exec pod/XXXXXXXX -ti -nbggns — /bin/sh
+mysqladmin ping -uroot -p
+change
+
+k port-forward deploy/bggapp-deploy -nbggns 3000:3000
+
+# to delete all pods using labels
+k delete po -nbggns -l name=bggapp-po
+
+or for specific pod from specific namespace
+$ k delete deployment.apps/bggdb-deploy -nbggns
+
+$ k get nodes
+$ k get nodes -owide
+$ k get nodes —show-labels
+
+# to label a node
+$ k label no/pool-wj1z9tl06-bdh0j gpu-enabled=yes
+# to unable
+$ k label no/pool-wj1z9tl06-bdh0j gpu-enabled-
+
+k delete ns/bggns
+
+k get ep -nbggns = ep is endpoints
+
+k rollout status deploy/bggapp-deploy -nbggns
+k rollout history -nbggns deploy/bggapp-deploy
+k rollout undo -nbggns deploy/bggapp-deploy —to-revision=1
+
+k get po -n bggns -l name=bggapp-po
+
+k get po -nbggns -o custom-columns”NAME:metadata.name IMAGE:spec.containers[*].image”
+or can be written as
+k get po -nbggns -o custom-columns”N:metadata.name I:spec.containers[*].image”
